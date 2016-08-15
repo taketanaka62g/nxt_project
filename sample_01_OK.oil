@@ -1,0 +1,85 @@
+/*********************************************************
+ * ファイル名 : sample_04.oil
+ * 責務       : 直立障害物検知音出力ロボット
+ * 作成日     : 2012.11.22
+ * 作成者     : BackSLASH DESIGN Co.,Ltd
+ * 修正日     : yyyy.mm.dd : Name : reason
+ * 備考       : 
+ *********************************************************/
+
+#include "implementation.oil"
+
+CPU ATMEL_AT91SAM7S256
+{
+	OS LEJOS_OSEK
+	{
+		STATUS = EXTENDED;
+		STARTUPHOOK = FALSE;
+		SHUTDOWNHOOK = FALSE;
+		PRETASKHOOK = FALSE;
+		POSTTASKHOOK = FALSE;
+		USEGETSERVICEID = FALSE;
+		USEPARAMETERACCESS = FALSE;
+		USERESSCHEDULER = FALSE;
+	};
+
+	/* アプリケーションモードの定義 */
+	APPMODE appmode1{};
+
+	/* 周期タスクの定義 : Task_Main */
+	TASK Task_Main
+	{
+		AUTOSTART = FALSE;
+		PRIORITY = 3;		/* タスク優先度 大きいほど優先度が高く, 範囲は1~16 */
+		ACTIVATION = 1;		/* 最大多重起動数 拡張タスクの多重起動は出来ない */
+		SCHEDULE = FULL;	/* NON:実行中タスクを優先,FULL:高優先度タスクを優先 */
+		STACKSIZE = 512;	/* スタックのサイズを指定 */
+	};
+	ALARM Alarm_Main
+	{
+		COUNTER = SysTimerCnt;
+		ACTION = ACTIVATETASK
+		{
+			TASK = Task_Main;
+		};
+		AUTOSTART = TRUE
+		{
+			APPMODE = appmode1;
+			ALARMTIME = 1;
+			CYCLETIME = 40;
+		};
+	};
+
+	/* 周期タスクの定義 : Task_Standing */
+	TASK Task_Standing
+	{
+		AUTOSTART = FALSE;
+		PRIORITY = 4;
+		ACTIVATION = 1;
+		SCHEDULE = FULL;
+		STACKSIZE = 512;
+	};
+	ALARM Alarm_Standing
+	{
+		COUNTER = SysTimerCnt;
+		ACTION = ACTIVATETASK
+		{
+			TASK = Task_Standing;
+		};
+		AUTOSTART = TRUE
+		{
+			APPMODE = appmode1;
+			ALARMTIME = 1;
+			CYCLETIME = 4;
+		};
+	};
+
+	/* 周期起動アラームの定義 : SysTimerCnt */
+	COUNTER SysTimerCnt
+	{
+		MAXALLOWEDVALUE = 10000; /* カウンター最大値 */
+		TICKSPERBASE = 1;	 /* カウンタ1単位辺りのTICK数 nxtOSEKの場合1msに1TICK増加 */
+		MINCYCLE = 1;		 /* 周期としての最小単位 TICKSPERBASEより大きく, MAXALLOWEDVALUEより小さい値 */
+	};
+
+};

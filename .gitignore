@@ -1,0 +1,6 @@
+#ignore files
+build/
+*.bin
+*.elf
+*.rxe
+*.map
